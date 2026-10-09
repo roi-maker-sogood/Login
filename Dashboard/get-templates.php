@@ -11,7 +11,15 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $pdo = new PDO("mysql:host=localhost;dbname=LLogin;charset=utf8mb4", "root", "");
-    $stmt = $pdo->prepare("SELECT id, template_name, file_path, uploaded_at FROM custom_templates WHERE user_id = ? ORDER BY uploaded_at DESC");
+    $modeColumn = $pdo->query("SHOW COLUMNS FROM custom_templates LIKE 'render_mode'")->fetch(PDO::FETCH_ASSOC);
+    if (!$modeColumn) {
+        $pdo->exec("ALTER TABLE custom_templates ADD COLUMN render_mode VARCHAR(20) NOT NULL DEFAULT 'overlay'");
+    }
+    $blueprintColumn = $pdo->query("SHOW COLUMNS FROM custom_templates LIKE 'blueprint_path'")->fetch(PDO::FETCH_ASSOC);
+    if (!$blueprintColumn) {
+        $pdo->exec("ALTER TABLE custom_templates ADD COLUMN blueprint_path VARCHAR(500) NULL");
+    }
+    $stmt = $pdo->prepare("SELECT id, template_name, file_path, render_mode, blueprint_path, uploaded_at FROM custom_templates WHERE user_id = ? ORDER BY uploaded_at DESC");
     $stmt->execute([$_SESSION['user_id']]);
     $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(["status" => "success", "data" => $templates]);

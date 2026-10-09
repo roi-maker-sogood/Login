@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS custom_templates (
     user_id INT NOT NULL,
     template_name VARCHAR(255) NOT NULL,
     file_path VARCHAR(500) NOT NULL,
+    render_mode VARCHAR(20) NOT NULL DEFAULT 'overlay',
+    blueprint_path VARCHAR(500) NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
